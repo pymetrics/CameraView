@@ -1170,6 +1170,14 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     }
 
     /**
+     * Returns the current audio maximum amplitude.
+     * @return current maximum amplitude
+     */
+    public int getAudioAmplitude() {
+        return mCameraController.getAudioAmplitude();
+    }
+
+    /**
      * Adds a {@link CameraListener} instance to be notified of all
      * interesting events that happen during the camera lifecycle.
      *

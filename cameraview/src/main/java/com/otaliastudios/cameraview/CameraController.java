@@ -325,6 +325,15 @@ abstract class CameraController implements
         mSnapshotMaxHeight = maxHeight;
     }
 
+    final int getAudioAmplitude() {
+        try {
+            FullVideoRecorder fullVideoRecorder = (FullVideoRecorder) mVideoRecorder;
+            return fullVideoRecorder.getAudioAmplitude();
+        } catch (Exception error) {
+            return 0;
+        }
+    }
+
     //endregion
 
     //region Abstract setters and APIs

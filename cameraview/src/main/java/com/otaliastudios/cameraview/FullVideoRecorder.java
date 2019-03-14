@@ -131,4 +131,8 @@ class FullVideoRecorder extends VideoRecorder {
         mController = null;
         dispatchResult();
     }
+
+    int getAudioAmplitude() {
+        return mMediaRecorder.getMaxAmplitude();
+    }
 }
