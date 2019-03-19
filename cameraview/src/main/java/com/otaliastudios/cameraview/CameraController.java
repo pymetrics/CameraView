@@ -49,6 +49,7 @@ abstract class CameraController implements
     protected float mZoomValue;
     protected float mExposureCorrectionValue;
     protected boolean mPlaySounds;
+    protected boolean mSaveVideoOutput = true;
 
     @Nullable private SizeSelector mPreviewStreamSizeSelector;
     private SizeSelector mPictureSizeSelector;
@@ -332,6 +333,10 @@ abstract class CameraController implements
         } catch (Exception error) {
             return 0;
         }
+    }
+
+    final void setSaveVideoOutput(boolean saveVideoOutput) {
+        mSaveVideoOutput = saveVideoOutput;
     }
 
     //endregion

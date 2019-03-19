@@ -1178,6 +1178,16 @@ public class CameraView extends FrameLayout implements LifecycleObserver {
     }
 
     /**
+     *
+     * sets the boolean value for saveVideoOutput that decides if the video will be saved to an actual directory or to saved to "dev/null"
+     * @param saveVideoOutput
+     */
+    public void saveVideoOutput(boolean saveVideoOutput) {
+        mCameraController.setSaveVideoOutput(saveVideoOutput);
+    }
+
+
+    /**
      * Adds a {@link CameraListener} instance to be notified of all
      * interesting events that happen during the camera lifecycle.
      *

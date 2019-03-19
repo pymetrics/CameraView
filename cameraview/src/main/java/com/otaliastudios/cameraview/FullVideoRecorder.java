@@ -3,21 +3,24 @@ package com.otaliastudios.cameraview;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
  * A {@link VideoRecorder} that uses {@link android.media.MediaRecorder} APIs.
  */
-class FullVideoRecorder extends VideoRecorder {
+class FullVideoRecorder
+        extends VideoRecorder {
 
-    private static final String TAG = FullVideoRecorder.class.getSimpleName();
+    private static final String       TAG = FullVideoRecorder.class.getSimpleName();
     private static final CameraLogger LOG = CameraLogger.create(TAG);
 
-    private MediaRecorder mMediaRecorder;
+    private MediaRecorder    mMediaRecorder;
     private CamcorderProfile mProfile;
-    private Camera1 mController;
-    private Camera mCamera;
+    private Camera1          mController;
+    private Camera           mCamera;
+    private boolean          mSaveVideoOutput = true;
 
     FullVideoRecorder(@NonNull VideoResult stub, @Nullable VideoResultListener listener,
                       @NonNull Camera1 controller, @NonNull Camera camera, int cameraId) {
@@ -53,9 +56,15 @@ class FullVideoRecorder extends VideoRecorder {
         }
         mMediaRecorder.setVideoSize(size.getWidth(), size.getHeight());
         switch (mResult.getVideoCodec()) {
-            case H_263: mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H263); break;
-            case H_264: mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264); break;
-            case DEVICE_DEFAULT: mMediaRecorder.setVideoEncoder(mProfile.videoCodec); break;
+            case H_263:
+                mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H263);
+                break;
+            case H_264:
+                mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+                break;
+            case DEVICE_DEFAULT:
+                mMediaRecorder.setVideoEncoder(mProfile.videoCodec);
+                break;
         }
         if (mResult.videoBitRate <= 0) {
             mMediaRecorder.setVideoEncodingBitRate(mProfile.videoBitRate);
@@ -79,7 +88,11 @@ class FullVideoRecorder extends VideoRecorder {
                     (float) mResult.getLocation().getLatitude(),
                     (float) mResult.getLocation().getLongitude());
         }
-        mMediaRecorder.setOutputFile(mResult.getFile().getAbsolutePath());
+        if (mSaveVideoOutput) {
+            mMediaRecorder.setOutputFile(mResult.getFile().getAbsolutePath());
+        } else {
+            mMediaRecorder.setOutputFile("/dev/null");
+        }
         mMediaRecorder.setOrientationHint(mResult.getRotation());
         mMediaRecorder.setMaxFileSize(mResult.getMaxSize());
         mMediaRecorder.setMaxDuration(mResult.getMaxDuration());
@@ -135,4 +148,9 @@ class FullVideoRecorder extends VideoRecorder {
     int getAudioAmplitude() {
         return mMediaRecorder.getMaxAmplitude();
     }
+
+    void setSaveVideoOutput(boolean saveVideoOutput) {
+        this.mSaveVideoOutput = saveVideoOutput;
+    }
+
 }
