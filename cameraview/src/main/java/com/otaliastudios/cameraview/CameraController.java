@@ -3,7 +3,6 @@ package com.otaliastudios.cameraview;
 import android.graphics.PointF;
 import android.location.Location;
 
-
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Build;
@@ -17,54 +16,55 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class CameraController implements
+abstract class CameraController
+        implements
         CameraPreview.SurfaceCallback,
         FrameManager.BufferCallback,
         Thread.UncaughtExceptionHandler {
 
-    private static final String TAG = CameraController.class.getSimpleName();
+    private static final String       TAG = CameraController.class.getSimpleName();
     private static final CameraLogger LOG = CameraLogger.create(TAG);
 
     static final int STATE_STOPPING = -1; // Camera is about to be stopped.
-    static final int STATE_STOPPED = 0; // Camera is stopped.
+    static final int STATE_STOPPED  = 0; // Camera is stopped.
     static final int STATE_STARTING = 1; // Camera is about to start.
-    static final int STATE_STARTED = 2; // Camera is available and we can set parameters.
+    static final int STATE_STARTED  = 2; // Camera is available and we can set parameters.
 
     protected final CameraView.CameraCallbacks mCameraCallbacks;
-    protected CameraPreview mPreview;
-    protected WorkerHandler mHandler;
+    protected       CameraPreview              mPreview;
+    protected       WorkerHandler              mHandler;
     /* for tests */ Handler mCrashHandler;
 
-    protected Facing mFacing;
-    protected Flash mFlash;
+    protected Facing       mFacing;
+    protected Flash        mFlash;
     protected WhiteBalance mWhiteBalance;
     protected VideoQuality mVideoQuality;
-    protected VideoCodec mVideoCodec;
-    protected SessionType mSessionType;
-    protected Hdr mHdr;
-    protected Location mLocation;
-    protected Audio mAudio;
-    protected float mZoomValue;
-    protected float mExposureCorrectionValue;
-    protected boolean mPlaySounds;
+    protected VideoCodec   mVideoCodec;
+    protected SessionType  mSessionType;
+    protected Hdr          mHdr;
+    protected Location     mLocation;
+    protected Audio        mAudio;
+    protected float        mZoomValue;
+    protected float        mExposureCorrectionValue;
+    protected boolean      mPlaySounds;
 
-    protected int mCameraId;
+    protected int             mCameraId;
     protected ExtraProperties mExtraProperties;
-    protected CameraOptions mCameraOptions;
-    protected Mapper mMapper;
-    protected FrameManager mFrameManager;
-    protected SizeSelector mPictureSizeSelector;
-    protected MediaRecorder mMediaRecorder;
-    protected File mVideoFile;
-    protected long mVideoMaxSize;
-    protected int mVideoMaxDuration;
-    protected Size mPictureSize;
-    protected Size mPreviewSize;
-    protected int mPreviewFormat;
+    protected CameraOptions   mCameraOptions;
+    protected Mapper          mMapper;
+    protected FrameManager    mFrameManager;
+    protected SizeSelector    mPictureSizeSelector;
+    protected MediaRecorder   mMediaRecorder;
+    protected File            mVideoFile;
+    protected long            mVideoMaxSize;
+    protected int             mVideoMaxDuration;
+    protected Size            mPictureSize;
+    protected Size            mPreviewSize;
+    protected int             mPreviewFormat;
 
     protected int mSensorOffset;
-    private int mDisplayOffset;
-    private int mDeviceOrientation;
+    private   int mDisplayOffset;
+    private   int mDeviceOrientation;
 
     protected boolean mIsCapturingImage = false;
     protected boolean mIsCapturingVideo = false;
@@ -72,15 +72,15 @@ abstract class CameraController implements
     protected int mState = STATE_STOPPED;
 
     // Used for testing.
-    Task<Void> mZoomTask = new Task<>();
+    Task<Void> mZoomTask               = new Task<>();
     Task<Void> mExposureCorrectionTask = new Task<>();
-    Task<Void> mFlashTask = new Task<>();
-    Task<Void> mWhiteBalanceTask = new Task<>();
-    Task<Void> mHdrTask = new Task<>();
-    Task<Void> mLocationTask = new Task<>();
-    Task<Void> mVideoQualityTask = new Task<>();
-    Task<Void> mStartVideoTask = new Task<>();
-    Task<Void> mPlaySoundsTask = new Task<>();
+    Task<Void> mFlashTask              = new Task<>();
+    Task<Void> mWhiteBalanceTask       = new Task<>();
+    Task<Void> mHdrTask                = new Task<>();
+    Task<Void> mLocationTask           = new Task<>();
+    Task<Void> mVideoQualityTask       = new Task<>();
+    Task<Void> mStartVideoTask         = new Task<>();
+    Task<Void> mPlaySoundsTask         = new Task<>();
 
     CameraController(CameraView.CameraCallbacks callback) {
         mCameraCallbacks = callback;
@@ -97,7 +97,8 @@ abstract class CameraController implements
 
     //region Error handling
 
-    private static class NoOpExceptionHandler implements Thread.UncaughtExceptionHandler {
+    private static class NoOpExceptionHandler
+            implements Thread.UncaughtExceptionHandler {
         @Override
         public void uncaughtException(Thread t, Throwable e) {
             // No-op.
@@ -159,10 +160,14 @@ abstract class CameraController implements
 
     private String ss() {
         switch (mState) {
-            case STATE_STOPPING: return "STATE_STOPPING";
-            case STATE_STOPPED: return "STATE_STOPPED";
-            case STATE_STARTING: return "STATE_STARTING";
-            case STATE_STARTED: return "STATE_STARTED";
+            case STATE_STOPPING:
+                return "STATE_STOPPING";
+            case STATE_STOPPED:
+                return "STATE_STOPPED";
+            case STATE_STARTING:
+                return "STATE_STARTING";
+            case STATE_STARTED:
+                return "STATE_STARTED";
         }
         return "null";
     }
@@ -174,7 +179,9 @@ abstract class CameraController implements
             @Override
             public void run() {
                 LOG.i("Start:", "executing. State:", ss());
-                if (mState >= STATE_STARTING) return;
+                if (mState >= STATE_STARTING) {
+                    return;
+                }
                 mState = STATE_STARTING;
                 LOG.i("Start:", "about to call onStart()", ss());
                 onStart();
@@ -192,7 +199,9 @@ abstract class CameraController implements
             @Override
             public void run() {
                 LOG.i("Stop:", "executing. State:", ss());
-                if (mState <= STATE_STOPPED) return;
+                if (mState <= STATE_STOPPED) {
+                    return;
+                }
                 mState = STATE_STOPPING;
                 LOG.i("Stop:", "about to call onStop()");
                 onStop();
@@ -208,7 +217,9 @@ abstract class CameraController implements
         try {
             // Don't check, try stop again.
             LOG.i("stopImmediately:", "State was:", ss());
-            if (mState == STATE_STOPPED) return;
+            if (mState == STATE_STOPPED) {
+                return;
+            }
             mState = STATE_STOPPING;
             onStop();
             mState = STATE_STOPPED;
@@ -395,6 +406,14 @@ abstract class CameraController implements
         return mAudio;
     }
 
+    final int getAudioAmplitude() {
+        try {
+            return mMediaRecorder.getMaxAmplitude();
+        } catch (Exception error) {
+            return 0;
+        }
+    }
+
     final SizeSelector getPictureSizeSelector() {
         return mPictureSizeSelector;
     }
@@ -486,7 +505,9 @@ abstract class CameraController implements
             // -> Use the external picture selector, but enforce the ratio constraint.
             CamcorderProfile profile = getCamcorderProfile();
             AspectRatio targetRatio = AspectRatio.of(profile.videoFrameWidth, profile.videoFrameHeight);
-            if (flip) targetRatio = targetRatio.inverse();
+            if (flip) {
+                targetRatio = targetRatio.inverse();
+            }
             LOG.i("size:", "computeCaptureSize:", "videoQuality:", mVideoQuality, "targetRatio:", targetRatio);
             SizeSelector matchRatio = SizeSelectors.aspectRatio(targetRatio, 0);
             selector = SizeSelectors.or(
@@ -499,7 +520,9 @@ abstract class CameraController implements
         List<Size> list = new ArrayList<>(mCameraOptions.getSupportedPictureSizes());
         Size result = selector.select(list).get(0);
         LOG.i("computePictureSize:", "result:", result, "flip:", flip);
-        if (flip) result = result.flip();
+        if (flip) {
+            result = result.flip();
+        }
         return result;
     }
 
@@ -509,7 +532,9 @@ abstract class CameraController implements
         boolean flip = shouldFlipSizes();
         AspectRatio targetRatio = AspectRatio.of(mPictureSize.getWidth(), mPictureSize.getHeight());
         Size targetMinSize = mPreview.getSurfaceSize();
-        if (flip) targetMinSize = targetMinSize.flip();
+        if (flip) {
+            targetMinSize = targetMinSize.flip();
+        }
         LOG.i("size:", "computePreviewSize:", "targetRatio:", targetRatio, "targetMinSize:", targetMinSize);
         SizeSelector matchRatio = SizeSelectors.aspectRatio(targetRatio, 0);
         SizeSelector matchSize = SizeSelectors.and(
