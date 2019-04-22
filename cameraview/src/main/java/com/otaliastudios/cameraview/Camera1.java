@@ -739,7 +739,6 @@ class Camera1
         CamcorderProfile profile = getCamcorderProfile();
         mMediaRecorder.setOutputFormat(profile.fileFormat);
         mMediaRecorder.setVideoFrameRate(30);
-//        mMediaRecorder.setVideoSize(mPreview.getDesiredSize().getWidth(), mPreview.getDesiredSize().getHeight());
         mMediaRecorder.setVideoSize(640, 640);
         if (mVideoCodec == VideoCodec.DEFAULT) {
             mMediaRecorder.setVideoEncoder(profile.videoCodec);
