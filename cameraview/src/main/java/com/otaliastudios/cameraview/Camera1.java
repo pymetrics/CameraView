@@ -22,27 +22,35 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings ("deprecation")
+class Camera1
+        extends CameraController
+        implements Camera.PreviewCallback,
+                   Camera.ErrorCallback {
 
-@SuppressWarnings("deprecation")
-class Camera1 extends CameraController implements Camera.PreviewCallback, Camera.ErrorCallback {
-
-    private static final String TAG = Camera1.class.getSimpleName();
+    private static final String       TAG = Camera1.class.getSimpleName();
     private static final CameraLogger LOG = CameraLogger.create(TAG);
 
-    private Camera mCamera;
+    private Camera  mCamera;
     private boolean mIsBound = false;
 
-    private final int mPostFocusResetDelay = 3000;
-    private Runnable mPostFocusResetRunnable = new Runnable() {
+    private final int      mPostFocusResetDelay    = 3000;
+    private       Runnable mPostFocusResetRunnable = new Runnable() {
         @Override
         public void run() {
-            if (!isCameraAvailable()) return;
+            if (!isCameraAvailable()) {
+                return;
+            }
             mCamera.cancelAutoFocus();
             Camera.Parameters params = mCamera.getParameters();
             int maxAF = params.getMaxNumFocusAreas();
             int maxAE = params.getMaxNumMeteringAreas();
-            if (maxAF > 0) params.setFocusAreas(null);
-            if (maxAE > 0) params.setMeteringAreas(null);
+            if (maxAF > 0) {
+                params.setFocusAreas(null);
+            }
+            if (maxAE > 0) {
+                params.setMeteringAreas(null);
+            }
             applyDefaultFocus(params); // Revert to internal focus.
             mCamera.setParameters(params);
         }
@@ -58,10 +66,14 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
             @Override
             public void run() {
                 if (ensureAvailable && !isCameraAvailable()) {
-                    if (task != null) task.end(null);
+                    if (task != null) {
+                        task.end(null);
+                    }
                 } else {
                     action.run();
-                    if (task != null) task.end(null);
+                    if (task != null) {
+                        task.end(null);
+                    }
                 }
             }
         });
@@ -75,7 +87,9 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
             @Override
             public void run() {
                 LOG.i("onSurfaceAvailable:", "Inside handler. About to bind.");
-                if (shouldBindToSurface()) bindToSurface();
+                if (shouldBindToSurface()) {
+                    bindToSurface();
+                }
             }
         });
     }
@@ -88,11 +102,15 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         schedule(null, true, new Runnable() {
             @Override
             public void run() {
-                if (!mIsBound) return;
+                if (!mIsBound) {
+                    return;
+                }
 
                 // Compute a new camera preview size.
                 Size newSize = computePreviewSize(sizesFromList(mCamera.getParameters().getSupportedPreviewSizes()));
-                if (newSize.equals(mPreviewSize)) return;
+                if (newSize.equals(mPreviewSize)) {
+                    return;
+                }
 
                 // Apply.
                 LOG.i("onSurfaceChanged:", "Computed a new preview size. Going on.");
@@ -193,7 +211,9 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
 
             // Try starting preview.
             mCamera.setDisplayOrientation(computeSensorToViewOffset()); // <- not allowed during preview
-            if (shouldBindToSurface()) bindToSurface();
+            if (shouldBindToSurface()) {
+                bindToSurface();
+            }
             LOG.i("onStart:", "Ended");
         }
     }
@@ -278,9 +298,14 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         Exception runtime = new RuntimeException(CameraLogger.lastMessage);
         int reason;
         switch (error) {
-            case Camera.CAMERA_ERROR_EVICTED: reason = CameraException.REASON_DISCONNECTED; break;
-            case Camera.CAMERA_ERROR_UNKNOWN: reason = CameraException.REASON_UNKNOWN; break;
-            default: reason = CameraException.REASON_UNKNOWN;
+            case Camera.CAMERA_ERROR_EVICTED:
+                reason = CameraException.REASON_DISCONNECTED;
+                break;
+            case Camera.CAMERA_ERROR_UNKNOWN:
+                reason = CameraException.REASON_UNKNOWN;
+                break;
+            default:
+                reason = CameraException.REASON_UNKNOWN;
         }
         throw new CameraException(runtime, reason);
     }
@@ -306,7 +331,9 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
             @Override
             public void run() {
                 Camera.Parameters params = mCamera.getParameters();
-                if (mergeLocation(params, oldLocation)) mCamera.setParameters(params);
+                if (mergeLocation(params, oldLocation)) {
+                    mCamera.setParameters(params);
+                }
             }
         });
     }
@@ -321,7 +348,7 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
 
             if (mIsCapturingVideo && mMediaRecorder != null) {
                 mMediaRecorder.setLocation((float) mLocation.getLatitude(),
-                        (float) mLocation.getLongitude());
+                                           (float) mLocation.getLongitude());
             }
         }
         return true;
@@ -350,7 +377,9 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
             @Override
             public void run() {
                 Camera.Parameters params = mCamera.getParameters();
-                if (mergeWhiteBalance(params, old)) mCamera.setParameters(params);
+                if (mergeWhiteBalance(params, old)) {
+                    mCamera.setParameters(params);
+                }
             }
         });
     }
@@ -372,7 +401,9 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
             @Override
             public void run() {
                 Camera.Parameters params = mCamera.getParameters();
-                if (mergeHdr(params, old)) mCamera.setParameters(params);
+                if (mergeHdr(params, old)) {
+                    mCamera.setParameters(params);
+                }
             }
         });
     }
@@ -386,7 +417,7 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         return false;
     }
 
-    @TargetApi(17)
+    @TargetApi (17)
     private boolean mergePlaySound(boolean oldPlaySound) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             Camera.CameraInfo info = new Camera.CameraInfo();
@@ -403,13 +434,12 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         return false;
     }
 
-
     @Override
     void setAudio(Audio audio) {
         if (mAudio != audio) {
             if (mIsCapturingVideo) {
                 LOG.w("Audio setting was changed while recording. " +
-                        "Changes will take place starting from next video");
+                              "Changes will take place starting from next video");
             }
             mAudio = audio;
         }
@@ -423,11 +453,12 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
             @Override
             public void run() {
                 Camera.Parameters params = mCamera.getParameters();
-                if (mergeFlash(params, old)) mCamera.setParameters(params);
+                if (mergeFlash(params, old)) {
+                    mCamera.setParameters(params);
+                }
             }
         });
     }
-
 
     private boolean mergeFlash(Camera.Parameters params, Flash oldFlash) {
         if (mCameraOptions.supports(mFlash)) {
@@ -437,7 +468,6 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         mFlash = oldFlash;
         return false;
     }
-
 
     // Choose the best default focus, based on session type.
     private void applyDefaultFocus(Camera.Parameters params) {
@@ -464,7 +494,6 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
             return;
         }
     }
-
 
     @Override
     void setVideoQuality(VideoQuality videoQuality) {
@@ -506,8 +535,12 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
             @Override
             public void run() {
                 LOG.v("capturePicture: performing.", mIsCapturingImage);
-                if (mIsCapturingImage) return;
-                if (mIsCapturingVideo && !mCameraOptions.isVideoSnapshotSupported()) return;
+                if (mIsCapturingImage) {
+                    return;
+                }
+                if (mIsCapturingVideo && !mCameraOptions.isVideoSnapshotSupported()) {
+                    return;
+                }
 
                 mIsCapturingImage = true;
                 final int sensorToOutput = computeSensorToOutputOffset();
@@ -539,7 +572,6 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         });
     }
 
-
     @Override
     void captureSnapshot() {
         LOG.v("captureSnapshot: scheduling");
@@ -547,7 +579,9 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
             @Override
             public void run() {
                 LOG.v("captureSnapshot: performing.", mIsCapturingImage);
-                if (mIsCapturingImage) return;
+                if (mIsCapturingImage) {
+                    return;
+                }
                 // This won't work while capturing a video.
                 // Switch to capturePicture.
                 if (mIsCapturingVideo) {
@@ -599,10 +633,10 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         Frame frame = mFrameManager.getFrame(data,
-                System.currentTimeMillis(),
-                computeSensorToOutputOffset(),
-                mPreviewSize,
-                mPreviewFormat);
+                                             System.currentTimeMillis(),
+                                             computeSensorToOutputOffset(),
+                                             mPreviewSize,
+                                             mPreviewFormat);
         mCameraCallbacks.dispatchFrame(frame);
     }
 
@@ -629,13 +663,14 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
     // -----------------
     // Video recording stuff.
 
-
     @Override
     void startVideo(@NonNull final File videoFile) {
         schedule(mStartVideoTask, true, new Runnable() {
             @Override
             public void run() {
-                if (mIsCapturingVideo) return;
+                if (mIsCapturingVideo) {
+                    return;
+                }
                 if (mSessionType == SessionType.VIDEO) {
                     mVideoFile = videoFile;
                     mIsCapturingVideo = true;
@@ -704,7 +739,8 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         CamcorderProfile profile = getCamcorderProfile();
         mMediaRecorder.setOutputFormat(profile.fileFormat);
         mMediaRecorder.setVideoFrameRate(30);
-        mMediaRecorder.setVideoSize(mPreview.getDesiredSize().getWidth(), mPreview.getDesiredSize().getHeight());
+//        mMediaRecorder.setVideoSize(mPreview.getDesiredSize().getWidth(), mPreview.getDesiredSize().getHeight());
+        mMediaRecorder.setVideoSize(640, 640);
         if (mVideoCodec == VideoCodec.DEFAULT) {
             mMediaRecorder.setVideoEncoder(profile.videoCodec);
         } else {
@@ -747,13 +783,14 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
     // -----------------
     // Zoom and simpler stuff.
 
-
     @Override
     void setZoom(final float zoom, final PointF[] points, final boolean notify) {
         schedule(mZoomTask, true, new Runnable() {
             @Override
             public void run() {
-                if (!mCameraOptions.isZoomSupported()) return;
+                if (!mCameraOptions.isZoomSupported()) {
+                    return;
+                }
 
                 mZoomValue = zoom;
                 Camera.Parameters params = mCamera.getParameters();
@@ -774,7 +811,9 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         schedule(mExposureCorrectionTask, true, new Runnable() {
             @Override
             public void run() {
-                if (!mCameraOptions.isExposureCorrectionSupported()) return;
+                if (!mCameraOptions.isExposureCorrectionSupported()) {
+                    return;
+                }
 
                 float value = EVvalue;
                 float max = mCameraOptions.getExposureCorrectionMaxValue();
@@ -796,7 +835,6 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
     // -----------------
     // Tap to focus stuff.
 
-
     @Override
     void startAutoFocus(@Nullable final Gesture gesture, final PointF point) {
         // Must get width and height from the UI thread.
@@ -811,18 +849,24 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         schedule(null, true, new Runnable() {
             @Override
             public void run() {
-                if (!mCameraOptions.isAutoFocusSupported()) return;
+                if (!mCameraOptions.isAutoFocusSupported()) {
+                    return;
+                }
                 final PointF p = new PointF(point.x, point.y); // copy.
                 List<Camera.Area> meteringAreas2 = computeMeteringAreas(p.x, p.y,
-                        viewWidthF, viewHeightF, computeSensorToViewOffset());
+                                                                        viewWidthF, viewHeightF, computeSensorToViewOffset());
                 List<Camera.Area> meteringAreas1 = meteringAreas2.subList(0, 1);
 
                 // At this point we are sure that camera supports auto focus... right? Look at CameraView.onTouchEvent().
                 Camera.Parameters params = mCamera.getParameters();
                 int maxAF = params.getMaxNumFocusAreas();
                 int maxAE = params.getMaxNumMeteringAreas();
-                if (maxAF > 0) params.setFocusAreas(maxAF > 1 ? meteringAreas2 : meteringAreas1);
-                if (maxAE > 0) params.setMeteringAreas(maxAE > 1 ? meteringAreas2 : meteringAreas1);
+                if (maxAF > 0) {
+                    params.setFocusAreas(maxAF > 1 ? meteringAreas2 : meteringAreas1);
+                }
+                if (maxAE > 0) {
+                    params.setMeteringAreas(maxAE > 1 ? meteringAreas2 : meteringAreas1);
+                }
                 params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
                 mCamera.setParameters(params);
                 mCameraCallbacks.dispatchOnFocusStart(gesture, p);
@@ -846,7 +890,6 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
             }
         });
     }
-
 
     @WorkerThread
     private static List<Camera.Area> computeMeteringAreas(double viewClickX, double viewClickY,
@@ -878,7 +921,6 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
         return list;
     }
 
-
     private static Rect computeMeteringArea(double centerX, double centerY, double size) {
         double delta = size / 2d;
         int top = (int) Math.max(centerY - delta, -1000);
@@ -893,14 +935,17 @@ class Camera1 extends CameraController implements Camera.PreviewCallback, Camera
     // -----------------
     // Size stuff.
 
-
     @Nullable
     private List<Size> sizesFromList(List<Camera.Size> sizes) {
-        if (sizes == null) return null;
+        if (sizes == null) {
+            return null;
+        }
         List<Size> result = new ArrayList<>(sizes.size());
         for (Camera.Size size : sizes) {
             Size add = new Size(size.width, size.height);
-            if (!result.contains(add)) result.add(add);
+            if (!result.contains(add)) {
+                result.add(add);
+            }
         }
         LOG.i("size:", "sizesFromList:", result);
         return result;
