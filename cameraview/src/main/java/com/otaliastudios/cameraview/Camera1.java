@@ -34,6 +34,9 @@ class Camera1
     private Camera  mCamera;
     private boolean mIsBound = false;
 
+    private int desiredwidth  = 640;
+    private int desiredheight = 640;
+
     private final int      mPostFocusResetDelay    = 3000;
     private       Runnable mPostFocusResetRunnable = new Runnable() {
         @Override
@@ -739,7 +742,12 @@ class Camera1
         CamcorderProfile profile = getCamcorderProfile();
         mMediaRecorder.setOutputFormat(profile.fileFormat);
         mMediaRecorder.setVideoFrameRate(30);
-        mMediaRecorder.setVideoSize(640, 640);
+        Camera.Parameters params = mCamera.getParameters();
+        List<Camera.Size> videosizes = params.getSupportedVideoSizes();
+
+        Camera.Size optimalVideoSize = getOptimalPreviewSize(videosizes, desiredwidth, desiredheight);
+        mMediaRecorder.setVideoSize(optimalVideoSize.width, optimalVideoSize.height);
+//        mMediaRecorder.setVideoSize(640, 640);
         if (mVideoCodec == VideoCodec.DEFAULT) {
             mMediaRecorder.setVideoEncoder(profile.videoCodec);
         } else {
@@ -964,5 +972,44 @@ class Camera1
 
     // -----------------
     // Additional helper info
+    private Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
+        final double ASPECT_TOLERANCE = 0.2;
+        double targetRatio = (double) w / h;
+        if (sizes == null) {
+            return null;
+        }
+
+        Camera.Size optimalSize = null;
+        double minDiff = Double.MAX_VALUE;
+
+        int targetHeight = h;
+
+        // Try to find an size match aspect ratio and size
+        for (Camera.Size size : sizes) {
+            Log.d("Camera", "Checking size " + size.width + "w " + size.height
+                    + "h");
+            double ratio = (double) size.width / size.height;
+            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) {
+                continue;
+            }
+            if (Math.abs(size.height - targetHeight) < minDiff) {
+                optimalSize = size;
+                minDiff = Math.abs(size.height - targetHeight);
+            }
+        }
+
+        // Cannot find the one match the aspect ratio, ignore the
+        // requirement
+        if (optimalSize == null) {
+            minDiff = Double.MAX_VALUE;
+            for (Camera.Size size : sizes) {
+                if (Math.abs(size.height - targetHeight) < minDiff) {
+                    optimalSize = size;
+                    minDiff = Math.abs(size.height - targetHeight);
+                }
+            }
+        }
+        return optimalSize;
+    }
 }
 
