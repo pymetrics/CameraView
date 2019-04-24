@@ -746,8 +746,9 @@ class Camera1
         List<Camera.Size> videosizes = params.getSupportedVideoSizes();
 
         Camera.Size optimalVideoSize = getOptimalPreviewSize(videosizes, desiredwidth, desiredheight);
-        mMediaRecorder.setVideoSize(optimalVideoSize.width, optimalVideoSize.height);
+//        mMediaRecorder.setVideoSize(optimalVideoSize.width, optimalVideoSize.height);
 //        mMediaRecorder.setVideoSize(640, 640);
+        mMediaRecorder.setVideoSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
         if (mVideoCodec == VideoCodec.DEFAULT) {
             mMediaRecorder.setVideoEncoder(profile.videoCodec);
         } else {
