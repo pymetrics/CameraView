@@ -741,19 +741,22 @@ class Camera1
         }
         CamcorderProfile profile = getCamcorderProfile();
         mMediaRecorder.setOutputFormat(profile.fileFormat);
-        mMediaRecorder.setVideoFrameRate(30);
-        Camera.Parameters params = mCamera.getParameters();
-        List<Camera.Size> videosizes = params.getSupportedVideoSizes();
 
-        Camera.Size optimalVideoSize = getOptimalPreviewSize(videosizes, desiredwidth, desiredheight);
-        mMediaRecorder.setVideoSize(optimalVideoSize.width, optimalVideoSize.height);
-//        mMediaRecorder.setVideoSize(640, 640);
+        mMediaRecorder.setVideoFrameRate(30);
+        mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
+
+//        Camera.Parameters params = mCamera.getParameters();
+//        List<Camera.Size> videosizes = params.getSupportedVideoSizes();
+//        Camera.Size optimalVideoSize = getOptimalPreviewSize(videosizes, desiredwidth, desiredheight);
+//        mMediaRecorder.setVideoSize(optimalVideoSize.width, optimalVideoSize.height);
+        mMediaRecorder.setVideoSize(640, 640);
         if (mVideoCodec == VideoCodec.DEFAULT) {
             mMediaRecorder.setVideoEncoder(profile.videoCodec);
         } else {
             mMediaRecorder.setVideoEncoder(mMapper.map(mVideoCodec));
         }
-        mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
+
+
         if (mAudio == Audio.ON) {
             mMediaRecorder.setAudioChannels(profile.audioChannels);
             mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
