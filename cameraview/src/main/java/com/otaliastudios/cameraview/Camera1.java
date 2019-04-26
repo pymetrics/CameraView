@@ -52,6 +52,9 @@ class Camera1
             Camera.Parameters params = mCamera.getParameters();
             List<Camera.Size> supportedVideoSizes = params.getSupportedVideoSizes();
             chosenVideoSize = chooseVideoSize(supportedVideoSizes);
+            Log.d(TAG, "run: CHOSEN VIDEO SIZE  = " + chosenVideoSize);
+            Log.d(TAG, "run: CHOSEN VIDEO SIZE w = " + chosenVideoSize.width);
+            Log.d(TAG, "run: CHOSEN VIDEO SIZE h = " + chosenVideoSize.height);
             int maxAF = params.getMaxNumFocusAreas();
             int maxAE = params.getMaxNumMeteringAreas();
             if (maxAF > 0) {
@@ -1031,6 +1034,7 @@ class Camera1
     private Camera.Size chooseVideoSize(List<Camera.Size> choices) {
 
         for (int i = 0; i < choices.size(); i++) {
+            Log.d(TAG, "chooseVideoSize: w = " + choices.get(i).width + " | h = " + choices.get(i).height);
             if (choices.get(i).width == choices.get(i).height * 4 / 3 && choices.get(i).width <= 1080) {
                 return choices.get(i);
             }
