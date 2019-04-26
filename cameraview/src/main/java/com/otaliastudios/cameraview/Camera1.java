@@ -1,12 +1,14 @@
 package com.otaliastudios.cameraview;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.graphics.ImageFormat;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
+import android.hardware.camera2.CameraManager;
 import android.location.Location;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
@@ -745,11 +747,12 @@ class Camera1
         mMediaRecorder.setVideoFrameRate(30);
         mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
 
-//        Camera.Parameters params = mCamera.getParameters();
-//        List<Camera.Size> videosizes = params.getSupportedVideoSizes();
+        Camera.Parameters params = mCamera.getParameters();
+        List<Camera.Size> videosizes = params.getSupportedVideoSizes();
 //        Camera.Size optimalVideoSize = getOptimalPreviewSize(videosizes, desiredwidth, desiredheight);
 //        mMediaRecorder.setVideoSize(optimalVideoSize.width, optimalVideoSize.height);
-        mMediaRecorder.setVideoSize(640, 640);
+        Camera.Size size = chooseVideoSize(videosizes);
+        mMediaRecorder.setVideoSize(size.width, size.height);
         if (mVideoCodec == VideoCodec.DEFAULT) {
             mMediaRecorder.setVideoEncoder(profile.videoCodec);
         } else {
@@ -1013,6 +1016,22 @@ class Camera1
             }
         }
         return optimalSize;
+    }
+
+//    private fun chooseVideoSize(choices: Array<Size>) = choices.firstOrNull {
+//        it.width == it.height * 4 / 3 && it.width <= 1080
+//    } ?: choices[choices.size - 1]
+//
+
+    private Camera.Size chooseVideoSize(List<Camera.Size> choices) {
+
+        for (int i = 0; i < choices.size(); i++) {
+            if (choices.get(i).width == choices.get(i).height * 4 / 3 && choices.get(i).width <= 1080) {
+                return choices.get(i);
+            }
+        }
+
+        return null;
     }
 }
 
