@@ -39,6 +39,8 @@ class Camera1
     private int desiredwidth  = 640;
     private int desiredheight = 640;
 
+    Camera.Size chosenVideoSize;
+
     private final int      mPostFocusResetDelay    = 3000;
     private       Runnable mPostFocusResetRunnable = new Runnable() {
         @Override
@@ -48,6 +50,8 @@ class Camera1
             }
             mCamera.cancelAutoFocus();
             Camera.Parameters params = mCamera.getParameters();
+            List<Camera.Size> supportedVideoSizes = params.getSupportedVideoSizes();
+            chosenVideoSize = chooseVideoSize(supportedVideoSizes);
             int maxAF = params.getMaxNumFocusAreas();
             int maxAE = params.getMaxNumMeteringAreas();
             if (maxAF > 0) {
@@ -747,12 +751,13 @@ class Camera1
         mMediaRecorder.setVideoFrameRate(30);
         mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
 
-        Camera.Parameters params = mCamera.getParameters();
-        List<Camera.Size> videosizes = params.getSupportedVideoSizes();
+//        Camera.Parameters params = mCamera.getParameters();
+//        List<Camera.Size> supportedVideoSizes = params.getSupportedVideoSizes();
+//        Camera.Size chosenVideoSize = chooseVideoSize(supportedVideoSizes);
+
 //        Camera.Size optimalVideoSize = getOptimalPreviewSize(videosizes, desiredwidth, desiredheight);
 //        mMediaRecorder.setVideoSize(optimalVideoSize.width, optimalVideoSize.height);
-        Camera.Size size = chooseVideoSize(videosizes);
-        mMediaRecorder.setVideoSize(size.width, size.height);
+        mMediaRecorder.setVideoSize(chosenVideoSize.width, chosenVideoSize.height);
         if (mVideoCodec == VideoCodec.DEFAULT) {
             mMediaRecorder.setVideoEncoder(profile.videoCodec);
         } else {
